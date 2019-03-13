@@ -1,0 +1,68 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "plantsdb-preloaded",
+    "namespace": "default",
+    "labels": {
+      "app": "plantsdb-preloaded"
+    },
+    "annotations": {
+      "deployment.kubernetes.io/revision": "6"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "plantsdb-preloaded"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "plantsdb-preloaded"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "plantsdb-preloaded-db2express-c",
+            "image": "vandepol/plantsdb-preloaded",
+            "args": [
+              "db2start"
+            ],
+            "env": [
+              {
+                "name": "LICENSE",
+                "value": "accept"
+              },
+              {
+                "name": "DB2INST1_PASSWORD",
+                "value": "db2Pa2359w0rd123"
+              }
+            ],
+            "resources": {},
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "securityContext": {},
+        "schedulerName": "default-scheduler"
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": "25%",
+        "maxSurge": "25%"
+      }
+    },
+    "revisionHistoryLimit": 10,
+    "progressDeadlineSeconds": 600
+  }
+}

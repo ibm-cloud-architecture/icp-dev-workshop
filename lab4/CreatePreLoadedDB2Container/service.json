@@ -1,0 +1,27 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "plantsdb-preloaded",
+    "namespace": "default",
+    "labels": {
+      "app": "plantsdb-preloaded"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "db2",
+        "protocol": "TCP",
+        "port": 50000,
+        "targetPort": 50000
+      }
+    ],
+    "selector": {
+      "app": "plantsdb-preloaded"
+    },
+    "type": "NodePort",
+    "sessionAffinity": "None",
+    "externalTrafficPolicy": "Cluster"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "plants-by-websphere-demo",
+    "namespace": "default",
+    "labels": {
+      "app": "plants-by-websphere-demo"
+    },
+    "annotations": {
+      "deployment.kubernetes.io/revision": "6"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "plants-by-websphere-demo"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "plants-by-websphere-demo"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "plantsdb-preloaded-db2express-c",
+            "image": "mycluster.icp:8500/default/plantsdb-preloaded:latest",
+            "args": [
+              "db2start"
+            ],
+            "env": [
+              {
+                "name": "LICENSE",
+                "value": "accept"
+              },
+              {
+                "name": "DB2INST1_PASSWORD",
+                "value": "db2Pa2359w0rd123"
+              }
+            ],
+            "resources": {},
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          },
+          {
+            "name": "twas-plantsbywebsphere",
+            "image": "mycluster.icp:8500/default/twas-plantsbywebsphere:8559",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "securityContext": {},
+        "schedulerName": "default-scheduler"
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": "25%",
+        "maxSurge": "25%"
+      }
+    },
+    "revisionHistoryLimit": 10,
+    "progressDeadlineSeconds": 600
+  }
+}

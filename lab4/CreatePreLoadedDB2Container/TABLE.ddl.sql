@@ -1,0 +1,467 @@
+-- This CLP file was created using DB2LOOK Version "10.5"
+-- Timestamp: Tue 17 Apr 2018 07:38:43 PM PDT
+-- Database Name: PLANTSDB
+-- Database Manager Version: DB2/LINUXX8664 Version 10.5.3
+-- Database Codepage: 1208
+-- Database Collating Sequence is: IDENTITY
+-- Alternate collating sequence(alt_collate): null
+-- varchar2 compatibility(varchar2_compat): OFF
+
+
+CONNECT TO PLANTSDB USER db2inst1;
+
+------------------------------------------------
+-- DDL Statements for Schemas
+------------------------------------------------
+
+-- Running the DDL below will explicitly create a schema in the
+-- new database that corresponds to an implicitly created schema
+-- in the original database.
+
+CREATE SCHEMA "DB2INST1";
+
+CREATE SCHEMA "APP";
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."BACKORDER"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."BACKORDER"  (
+		  "BACKORDERID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "INVENTORYID" VARCHAR(250 OCTETS) ,
+		  "QUANTITY" INTEGER NOT NULL ,
+		  "STATUS" VARCHAR(250 OCTETS) ,
+		  "LOWDATE" BIGINT NOT NULL ,
+		  "ORDERDATE" BIGINT NOT NULL ,
+		  "SUPPLIERORDERID" VARCHAR(250 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."BACKORDER"
+
+ALTER TABLE "DB2INST1"."BACKORDER"
+	ADD CONSTRAINT "PK_BACKORDER" PRIMARY KEY
+		("BACKORDERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."SUPPLIER"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."SUPPLIER"  (
+		  "SUPPLIERID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "NAME" VARCHAR(250 OCTETS) ,
+		  "STREET" VARCHAR(250 OCTETS) ,
+		  "CITY" VARCHAR(250 OCTETS) ,
+		  "USSTATE" VARCHAR(250 OCTETS) ,
+		  "ZIP" VARCHAR(250 OCTETS) ,
+		  "PHONE" VARCHAR(250 OCTETS) ,
+		  "URL" VARCHAR(250 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."SUPPLIER"
+
+ALTER TABLE "DB2INST1"."SUPPLIER"
+	ADD CONSTRAINT "PK_SUPPLIER" PRIMARY KEY
+		("SUPPLIERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."INVENTORY"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."INVENTORY"  (
+		  "INVENTORYID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "NAME" VARCHAR(250 OCTETS) ,
+		  "HEADING" VARCHAR(250 OCTETS) ,
+		  "DESCRIPTION" VARCHAR(250 OCTETS) ,
+		  "PKGINFO" VARCHAR(250 OCTETS) ,
+		  "IMAGE" VARCHAR(250 OCTETS) ,
+		  "IMGBYTES" BLOB(1048576) LOGGED NOT COMPACT ,
+		  "PRICE" REAL NOT NULL ,
+		  "COST" REAL NOT NULL ,
+		  "CATEGORY" INTEGER NOT NULL ,
+		  "QUANTITY" INTEGER NOT NULL ,
+		  "NOTES" VARCHAR(250 OCTETS) ,
+		  "ISPUBLIC" INTEGER NOT NULL ,
+		  "MINTHRESHOLD" INTEGER NOT NULL ,
+		  "MAXTHRESHOLD" INTEGER NOT NULL )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."INVENTORY"
+
+ALTER TABLE "DB2INST1"."INVENTORY"
+	ADD CONSTRAINT "PK_INVENTORY" PRIMARY KEY
+		("INVENTORYID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."ORDERITEM"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."ORDERITEM"  (
+		  "INVENTORYID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "NAME" VARCHAR(250 OCTETS) ,
+		  "PKGINFO" VARCHAR(250 OCTETS) ,
+		  "PRICE" REAL NOT NULL ,
+		  "COST" REAL NOT NULL ,
+		  "CATEGORY" INTEGER NOT NULL ,
+		  "QUANTITY" INTEGER NOT NULL ,
+		  "SELLDATE" VARCHAR(250 OCTETS) ,
+		  "ORDER_ORDERID" VARCHAR(250 OCTETS) NOT NULL )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."ORDERITEM"
+
+ALTER TABLE "DB2INST1"."ORDERITEM"
+	ADD CONSTRAINT "PK_ORDERITEM" PRIMARY KEY
+		("INVENTORYID",
+		 "ORDER_ORDERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."ORDER1"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."ORDER1"  (
+		  "ORDERID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "SELLDATE" VARCHAR(250 OCTETS) ,
+		  "BILLNAME" VARCHAR(250 OCTETS) ,
+		  "BILLADDR1" VARCHAR(250 OCTETS) ,
+		  "BILLADDR2" VARCHAR(250 OCTETS) ,
+		  "BILLCITY" VARCHAR(250 OCTETS) ,
+		  "BILLSTATE" VARCHAR(250 OCTETS) ,
+		  "BILLZIP" VARCHAR(250 OCTETS) ,
+		  "BILLPHONE" VARCHAR(250 OCTETS) ,
+		  "SHIPNAME" VARCHAR(250 OCTETS) ,
+		  "SHIPADDR1" VARCHAR(250 OCTETS) ,
+		  "SHIPADDR2" VARCHAR(250 OCTETS) ,
+		  "SHIPCITY" VARCHAR(250 OCTETS) ,
+		  "SHIPSTATE" VARCHAR(250 OCTETS) ,
+		  "SHIPZIP" VARCHAR(250 OCTETS) ,
+		  "SHIPPHONE" VARCHAR(250 OCTETS) ,
+		  "CREDITCARD" VARCHAR(250 OCTETS) ,
+		  "CCNUM" VARCHAR(250 OCTETS) ,
+		  "CCEXPIREMONTH" VARCHAR(250 OCTETS) ,
+		  "CCEXPIREYEAR" VARCHAR(250 OCTETS) ,
+		  "CARDHOLDER" VARCHAR(250 OCTETS) ,
+		  "SHIPPINGMETHOD" INTEGER NOT NULL ,
+		  "PROFIT" REAL NOT NULL ,
+		  "CUSTOMERID" VARCHAR(250 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."ORDER1"
+
+ALTER TABLE "DB2INST1"."ORDER1"
+	ADD CONSTRAINT "PK_ORDER1" PRIMARY KEY
+		("ORDERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."CUSTOMER"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."CUSTOMER"  (
+		  "CUSTOMERID" VARCHAR(250 OCTETS) NOT NULL ,
+		  "PASSWORD" VARCHAR(250 OCTETS) ,
+		  "FIRSTNAME" VARCHAR(250 OCTETS) ,
+		  "LASTNAME" VARCHAR(250 OCTETS) ,
+		  "ADDR1" VARCHAR(250 OCTETS) ,
+		  "ADDR2" VARCHAR(250 OCTETS) ,
+		  "ADDRCITY" VARCHAR(250 OCTETS) ,
+		  "ADDRSTATE" VARCHAR(250 OCTETS) ,
+		  "ADDRZIP" VARCHAR(250 OCTETS) ,
+		  "PHONE" VARCHAR(250 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."CUSTOMER"
+
+ALTER TABLE "DB2INST1"."CUSTOMER"
+	ADD CONSTRAINT "PK_CUSTOMER" PRIMARY KEY
+		("CUSTOMERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "DB2INST1"."IDGENERATOR"
+------------------------------------------------
+
+
+CREATE TABLE "DB2INST1"."IDGENERATOR"  (
+		  "IDNAME" VARCHAR(250 OCTETS) NOT NULL ,
+		  "IDVALUE" INTEGER NOT NULL )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "DB2INST1"."IDGENERATOR"
+
+ALTER TABLE "DB2INST1"."IDGENERATOR"
+	ADD CONSTRAINT "PK_IDGENERATOR" PRIMARY KEY
+		("IDNAME");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."BACKORDER"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."BACKORDER"  (
+		  "BACKORDERID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "LOWDATE" BIGINT ,
+		  "ORDERDATE" BIGINT ,
+		  "QUANTITY" INTEGER ,
+		  "STATUS" VARCHAR(254 OCTETS) ,
+		  "SUPPLIERORDERID" VARCHAR(254 OCTETS) ,
+		  "INVENTORYID" VARCHAR(254 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."BACKORDER"
+
+ALTER TABLE "APP"."BACKORDER"
+	ADD PRIMARY KEY
+		("BACKORDERID");
+
+
+
+-- DDL Statements for Indexes on Table "APP"."BACKORDER"
+
+SET NLS_STRING_UNITS = 'SYSTEM';
+
+CREATE INDEX "DB2INST1"."I_BCKORDR_INVENTOR" ON "APP"."BACKORDER"
+		("INVENTORYID" ASC)
+
+		COMPRESS NO
+		INCLUDE NULL KEYS ALLOW REVERSE SCANS;
+------------------------------------------------
+-- DDL Statements for Table "APP"."CUSTOMER"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."CUSTOMER"  (
+		  "CUSTOMERID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "ADDR1" VARCHAR(254 OCTETS) ,
+		  "ADDR2" VARCHAR(254 OCTETS) ,
+		  "ADDRCITY" VARCHAR(254 OCTETS) ,
+		  "ADDRSTATE" VARCHAR(254 OCTETS) ,
+		  "ADDRZIP" VARCHAR(254 OCTETS) ,
+		  "FIRSTNAME" VARCHAR(254 OCTETS) ,
+		  "LASTNAME" VARCHAR(254 OCTETS) ,
+		  "PASSWORD" VARCHAR(254 OCTETS) ,
+		  "PHONE" VARCHAR(254 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."CUSTOMER"
+
+ALTER TABLE "APP"."CUSTOMER"
+	ADD PRIMARY KEY
+		("CUSTOMERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."IDGENERATOR"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."IDGENERATOR"  (
+		  "IDNAME" VARCHAR(254 OCTETS) NOT NULL ,
+		  "IDVALUE" BIGINT )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."IDGENERATOR"
+
+ALTER TABLE "APP"."IDGENERATOR"
+	ADD PRIMARY KEY
+		("IDNAME");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."INVENTORY"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."INVENTORY"  (
+		  "INVENTORYID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "CATEGORY" INTEGER ,
+		  "COST" REAL ,
+		  "DESCRIPTION" VARCHAR(254 OCTETS) ,
+		  "HEADING" VARCHAR(254 OCTETS) ,
+		  "IMAGE" VARCHAR(254 OCTETS) ,
+		  "IMGBYTES" BLOB(1048576) LOGGED NOT COMPACT ,
+		  "ISPUBLIC" SMALLINT ,
+		  "MAXTHRESHOLD" INTEGER ,
+		  "MINTHRESHOLD" INTEGER ,
+		  "NAME" VARCHAR(254 OCTETS) ,
+		  "NOTES" VARCHAR(254 OCTETS) ,
+		  "PKGINFO" VARCHAR(254 OCTETS) ,
+		  "PRICE" REAL ,
+		  "QUANTITY" INTEGER )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."INVENTORY"
+
+ALTER TABLE "APP"."INVENTORY"
+	ADD PRIMARY KEY
+		("INVENTORYID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."OPENJPA_SEQUENCE_TABLE"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."OPENJPA_SEQUENCE_TABLE"  (
+		  "ID" SMALLINT NOT NULL ,
+		  "SEQUENCE_VALUE" BIGINT )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."OPENJPA_SEQUENCE_TABLE"
+
+ALTER TABLE "APP"."OPENJPA_SEQUENCE_TABLE"
+	ADD PRIMARY KEY
+		("ID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."ORDER1"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."ORDER1"  (
+		  "ORDERID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "BILLADDR1" VARCHAR(254 OCTETS) ,
+		  "BILLADDR2" VARCHAR(254 OCTETS) ,
+		  "BILLCITY" VARCHAR(254 OCTETS) ,
+		  "BILLNAME" VARCHAR(254 OCTETS) ,
+		  "BILLPHONE" VARCHAR(254 OCTETS) ,
+		  "BILLSTATE" VARCHAR(254 OCTETS) ,
+		  "BILLZIP" VARCHAR(254 OCTETS) ,
+		  "CARDHOLDER" VARCHAR(254 OCTETS) ,
+		  "CCEXPIREMONTH" VARCHAR(254 OCTETS) ,
+		  "CCEXPIREYEAR" VARCHAR(254 OCTETS) ,
+		  "CCNUM" VARCHAR(254 OCTETS) ,
+		  "CREDITCARD" VARCHAR(254 OCTETS) ,
+		  "PROFIT" REAL ,
+		  "SELLDATE" VARCHAR(254 OCTETS) ,
+		  "SHIPADDR1" VARCHAR(254 OCTETS) ,
+		  "SHIPADDR2" VARCHAR(254 OCTETS) ,
+		  "SHIPCITY" VARCHAR(254 OCTETS) ,
+		  "SHIPNAME" VARCHAR(254 OCTETS) ,
+		  "SHIPPHONE" VARCHAR(254 OCTETS) ,
+		  "SHIPSTATE" VARCHAR(254 OCTETS) ,
+		  "SHIPZIP" VARCHAR(254 OCTETS) ,
+		  "SHIPPINGMETHOD" INTEGER ,
+		  "CUSTOMERID" VARCHAR(254 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."ORDER1"
+
+ALTER TABLE "APP"."ORDER1"
+	ADD PRIMARY KEY
+		("ORDERID");
+
+
+
+-- DDL Statements for Indexes on Table "APP"."ORDER1"
+
+SET NLS_STRING_UNITS = 'SYSTEM';
+
+CREATE INDEX "DB2INST1"."I_ORDER1_CUSTOMER" ON "APP"."ORDER1"
+		("CUSTOMERID" ASC)
+
+		COMPRESS NO
+		INCLUDE NULL KEYS ALLOW REVERSE SCANS;
+------------------------------------------------
+-- DDL Statements for Table "APP"."ORDERITEM"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."ORDERITEM"  (
+		  "INVENTORYID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "ORDER_ORDERID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "CATEGORY" INTEGER ,
+		  "COST" REAL ,
+		  "NAME" VARCHAR(254 OCTETS) ,
+		  "PKGINFO" VARCHAR(254 OCTETS) ,
+		  "PRICE" REAL ,
+		  "QUANTITY" INTEGER ,
+		  "SELLDATE" VARCHAR(254 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."ORDERITEM"
+
+ALTER TABLE "APP"."ORDERITEM"
+	ADD PRIMARY KEY
+		("INVENTORYID",
+		 "ORDER_ORDERID");
+
+
+------------------------------------------------
+-- DDL Statements for Table "APP"."SUPPLIER"
+------------------------------------------------
+
+
+CREATE TABLE "APP"."SUPPLIER"  (
+		  "SUPPLIERID" VARCHAR(254 OCTETS) NOT NULL ,
+		  "CITY" VARCHAR(254 OCTETS) ,
+		  "NAME" VARCHAR(254 OCTETS) ,
+		  "PHONE" VARCHAR(254 OCTETS) ,
+		  "STREET" VARCHAR(254 OCTETS) ,
+		  "URL" VARCHAR(254 OCTETS) ,
+		  "USSTATE" VARCHAR(254 OCTETS) ,
+		  "ZIP" VARCHAR(254 OCTETS) )
+		 IN "USERSPACE1"
+		 ORGANIZE BY ROW;
+
+
+-- DDL Statements for Primary Key on Table "APP"."SUPPLIER"
+
+ALTER TABLE "APP"."SUPPLIER"
+	ADD PRIMARY KEY
+		("SUPPLIERID");
+
+
+
+
+
+
+
+
+
+COMMIT WORK;
+
+CONNECT RESET;
+
+TERMINATE;

@@ -1,0 +1,30 @@
+FROM ibmcom/websphere-traditional:8.5.5.9-profile
+
+USER root
+
+RUN mkdir /demo
+RUN mkdir /data
+RUN mkdir /demo/db2drivers
+COPY db2drivers/db2jcc.jar /demo/db2drivers
+COPY db2drivers/db2jcc_license_cu.jar /demo/db2drivers
+
+COPY wsadmin8559.py /demo/wsadmin.py
+COPY HelloWorld.war /demo/
+COPY pbw-ear8.ear /demo/
+COPY pbw-ear7.ear /demo/
+COPY daytrader-web-2.2.1.ear /demo/
+COPY transformationadvisor-2.1_Linux_Demo1.tgz.part* /demo/
+
+WORKDIR "/demo"
+RUN cat transformationadvisor-2.1_Linux_Demo1.tgz.part? > transformationadvisor-2.1_Linux_Demo1.tgz
+RUN tar xvfz transformationadvisor-2.1_Linux_Demo1.tgz
+
+
+COPY PASSWORD /tmp/PASSWORD
+ENV pwd=passw0rd
+RUN echo $pwd
+
+RUN wsadmin.sh -lang jython -f /demo/wsadmin.py -conntype NONE -username wsadmin -password passw0rd
+
+#WORKDIR "/demo/transformationadvisor-2.1/"
+#RUN  ./bin/transformationadvisor -w /opt/IBM/WebSphere/AppServer -p AppSrv01 wsadmin passw0rd -no-version-check
