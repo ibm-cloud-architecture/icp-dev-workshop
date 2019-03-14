@@ -313,6 +313,22 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 
   The code allows the classloader to access the third-party libraries that are included with Liberty. For the application to work correctly, the classloader must be able to access the Jackson and Apache Wink libraries.
 
+  Examime the results related to the behavior change for lookups on Enterprise JavaBeans.
+
+  ![jpa](images/lab5/ejb3.jpg)
+
+  Review the Detailed Help describing the issue.
+
+  Replace the `ejblocal` lookup for `ProductSearchService` with the lookup below and save your changes:
+  ```bash
+  java:app/CustomerOrderServices/ProductSearchServiceImpl!org.pwte.example.service.ProductSearchService
+  ```
+
+  Replace the `ejblocal` lookup for `CustomerOrderServices` with the lookup below and save your changes:
+  ```bash
+  java:app/CustomerOrderServices/CustomerOrderServicesImpl!org.pwte.example.service.CustomerOrderServices
+  ```
+
   Examine the last part of the Java Code Review:
 
   ![jpa](images/lab5/jpa.jpg)
@@ -334,6 +350,10 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 
   Save and close the file.
 
+  Rerun the Software Analysis and ensure that the severe results have been addressed and no longer show in the analysis results.
+
+  ![ejb](images/lab5/analysis2.jpg)
+
 ## Task 7: Configure the WebSphere Liberty Server
 1. Create a new Liberty server in Eclipse.
   a. Open the `Servers` view
@@ -346,41 +366,128 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 
 2. Replace the server.xml with this one from GitHub
 [server.xml](https://github.com/ibm-cloud-architecture/icp-dev-workshop/blob/master/lab5/server.xml)
+  a. In the `Servers` view. open the `Lab5` server
+  b. Double-click on 'Server Configuration'
+  c. Switch to the 'Source' view
+  d. Replace the contents with that from GitHub
+  e. Review the featureList, classLoader, basicRegistry and db2 configuration
 
-Use locally installed Liberty instance on your laptop, which Eclipse points to:
+3. Modify the `OrderDS` datasource to have the correct `serverName` and `portNumber` for your DB2 instance that is running in ICP.
 
-![purple](static/purple-liberty.png "purple")
+  ![serverxml](images/lab5/serverxml.jpg)
 
-
-The downloaded server.xml may need to be tweaked in few places to reflect your environement (areas where change is likely needed is highlighted below)
-
-![purple](static/purple-liberty-config.png "purple")
-
-
+4. Save your changes
 
 ## Task 8: Run the application
 
-The location of application EAR file and DB2 jdbc drivers consistent with the server.xml above is shown below:
-![purple](static/purple-liberty-files.png "purple")
+1. Copy the db2 jars from https://github.com/ibm-cloud-architecture/icp-dev-workshop/tree/master/lab5/libs to `/opt/liberty/wlp/usr/shared/resources/lib` (or you can copy them from the lab4 files in`/root/lab4/liberty/binary/lib`)
 
-No other supplementary instructions required.
+2. Export the EAR file from eclipse
+  a. Right-click the CustomerOrderServicesApp project and select Export > EAR file.
+  b. In the window that opens, set up the project to be exported as an EAR file
+  c. For the name of the EAR project, type CustomerOrderServicesApp.
+  d. For the destination, type `/opt/liberty/wlp/usr/shared/apps/CustomerOrderServicesApp.ear`.
+  e. Select the Optimize for a specific server runtime check box and select WebSphere Application Server Liberty from the list.
+  f. Select the Overwrite existing file check box in case another application already uses the file name that you specified.
+  g. Click Finish.
+
+  The project is exported as an EAR file into the shared applications folder for WebSphere Liberty and to the application itself.
+
+3. Click the Servers tab. Right-click the Lab5 server and click Start. The Console tab opens, where you can see the WebSphere Liberty output.
+
+4. Note that the server failed to start due to missing older features.
+
+  ![failure](images/lab5/failure1.jpg)
+
+5. Install the required features.
+  a. Stop the Lab5 server
+  b. At the command line issue the following command:
+
+  ```bash
+  /opt/liberty/wlp/bin/installUtility install Lab5
+  ```
+
+6. Restart the lab5 Liberty server
+
+7. Find the links for the two web applications that are deployed to WebSphere Liberty. One application is a test project that you can ignore. The other application is the Customer Order Services application, which is accessible at http://localhost:9080/CustomerOrderServicesWeb/. Click that link or copy the link and paste it in a web browser.
+
+8. You are prompted to log in because you added security for the application in the server.xml file.
+
+  For the user name, type rbarcia. For the password, type bl0wfish.
+
+  After you log in to the application, it is displayed.
+
+  ![failure](images/lab5/app1.jpg)
+
+  However, if you look at the Console tab for WebSphere Liberty in Eclipse, errors are shown. Carefully review the errors. A problem exists with the data that is returned from the database. The problem happens in the loadCustomer method in CustomerOrderServicesImpl.java. Look at that method. The method is trying to return an AbstractCustomer from the database:
+
+  ![failure](images/lab5/class.jpg)
+
+  The problem is in the AbstractCustomer class. As its name suggests, it's an abstract class, so it won't be instantiated. Look for the classes that extend the abstract class. Those classes are BusinessCustomer and ResidentialCustomer. If you remember the SQL error in the WebSphere Liberty Console log, it was about a value, Y, being returned as an integer. In the Java classes, you can see that some Boolean attributes that get values of Y and N are being returned as integers, causing the SQL exception.
+
+  The reason for this behavior is that the OpenJPA driver treats Booleans differently based on its version. In this case, the OpenJPA driver version that you're using in WebSphere Liberty does not automatically convert Y or N database values into Booleans. As a result, you need to store them as strings and check those strings to return a Boolean value:
+
+  ![bizCust](images/lab5/businessCustomer.jpg)
+
+  ![resCust](images/lab5/residentialCustomer.jpg)
+
+  Save all the changes, export the EAR project to the WebSphere Liberty folder, and start the server.
+
+9. Confirm that no errors are shown for the Customer Order Services application, either in the browser or on the Console tab for WebSphere Liberty in Eclipse.
+
+  ![noerrors](images/lab5/noerrors.jpg)
+
+10. Stop the WebSphere Liberty server.
 
 ## Task 9: Deploy Customer Order application on ICP.
 
-Follow the same steps used to deploy [Plants by WebSphere](plants-by-websphere.md) to ICP.
-You can use
-[deployment.json](solutions/purple-compute/deployment.json)
-and
-[service.json](solutions/purple-compute/service.json)
+Follow the same steps used in Lab4 to deploy this Customer Order application ICP.
 
+1. Create a `/root/lab5/liberty` folder
+2. Copy `server.xml` from your current Liberty server to `/root/lab5/liberty`
+3. Copy the db2 jars to `/root/lab5/liberty/binary/lib`
+4. Copy the ear to `/root/lab5/liberty/binary/application`
+5. Copy the Dockerfile from `/root/lab4/liberty` to `/root/lab5/liberty`
+6. Modify the server.xml file `file name` entries for the db2 drivers to use `/config/lib` as the location (refer to the server.xml from Lab4)
+7. Modify the server.xml file `application location` entrie for the CustomerOrderServicesApp.ear to remove the folder from the location (refer to the server.xml from Lab4)
+8. Build and push a Docker Image with the tag `mycluster.icp:8500/default/customerorderservices` to ICP
+9. Create a new yaml file using the text below:
 
-to deploy a container.
-
-You can do it manually via ```kubectl create -f ```, but if you do it few times, you will quickly realize that for most part, the definitions of  Kubernetes deployment and a service are basically the same and follow a template with only a few variable parameters.
-You can use a generic ```deploy-app``` helm chart to deploy any application provided [here](deploy-app)
-The deploy-app helm chart implements a common deployment template, you will only need to provide few required parameters either in Values.yaml or via --set directive in command line
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  name: "customerorderservices"
+  namespace: "default"
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 9080
+    protocol: "TCP"
+    targetPort: 9080
+  selector:
+    app: "customerorderservices"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "customerorderservices"
+  namespace: "default"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "customerorderservices"
+    spec:
+      containers:
+      - name: plantsbyliberty
+        image: mycluster.icp:8500/default/customerorderservices
 ```
-helm install ./deploy-app --name purple-compute-app  --set image.repository=mycluster.icp:8500/default/purple-compute-app --set service.servicePort=8080 --tls
-```
 
-Confirm the Helm release is deployed in ICP console, the pod has started, then test the JBoss application
+10. Create the service and deployment using kubectl
+11. Locate the port that the service is running on
+12. Navigate to `http://10.10.1.4:<port>/CustomerOrderServicesWeb`
+
+  ![running](images/lab5/running.jpg)
