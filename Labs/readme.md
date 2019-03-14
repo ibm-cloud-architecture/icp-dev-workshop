@@ -1,6 +1,6 @@
 [Lab 1: Console Treasure Hunt](Lab1a-Console-Treasure-Hunt.md)
 
-[Lab 1: Use CLIs](Lab1a-Console-Treasure-Hunt.md)
+[Lab 1: Use CLIs](Lab1b-Use-CLI-Tools.md)
 
 [Lab 2: Development with ICP](lab2_development_with_icp.md)
 
