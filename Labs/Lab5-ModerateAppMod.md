@@ -136,88 +136,216 @@ kubectl get services -n default
 
 In our case DB2 endpoint will be `10.10.1.4:32518`
 
-The step by step modernization guide for Customer Order application is provided here (referred to later  as "the guide"):
+## Task 2: Analyze the application by using Transformation Advisor
 
-https://www.ibm.com/cloud/garage/content/course/websphere-on-cloud-private
+1. Create a new `Lab5` workspace and a `PurpleCompute` collection in Transformation Advisor. Upload the provided results ZIP file for Customer Order from: https://github.com/ibm-cloud-architecture/icp-dev-workshop/blob/master/lab5/Lab5.zip
 
-*IMPORTANT:* The instructions in this modernization guide are referring to ```skytap``` based lab environment that is not available any more in its original form.
+![ta](images/lab5/ta1.jpg)
 
-You will still be able to perform all the tasks in the modernization guide using supplemtary instructions below.
+2. Click on the `CustomerOrderServicesApp.ear` and review the detailed results. Review the `severe` results and use the `Analysis` report to locate the files you'll need to change.
 
-**Note:** Tasks 1-8 below are performed locally.
-Task 9 will require ICP access
+## Task 3: Download the application code and import it into Eclipse
 
-
-The guide assumes you have access to a pre-built development workstation VM with all software prerequisites loaded into ~/PurpleCompute.
-Instead you will load pre-reqs by yourself instead.
-Ensure all software pre-requisites defined [here](mock-engagement.md) are installed.
-
-
-Use the following supplementary instructions to complete the tasks described in the modernization guide above. You still follow the instructions provided in the guide, use the supplementary instruction below to address the logistal issues due to missing skytap VMs.
-
-
-## Task 1: Analyze the application by using Transformation Advisor
-
-Use local TA installed on your laptop [earlier](install-TA.md).
-Upload to TA scan results ZIP file for Customer Order into TA Local. The ZIP file was generated from TA 1.4,but will still work.
-https://ibm.ent.box.com/s/5sjn1kgn14x5avmp6v9k5dpr0kl78bg9
-
-## Task 2: Download the application code and import it into Eclipse
-
-Create ~/PurpleCompute on your laptop, and follow instructions to clone application git repo.
-Eclipse doesn't have to be installed under ~/PurpleCompute.
-You can and should use more recent Eclipse version (e.g.Photon).  There will be some UI deviations from the screenshots provided which are based on earlier Eclipse Neon version.
-
-
-## Task 3: Clean up the development environment
-
-Before starting this task, make sure you have WebSphere Liberty configured in Eclipse as a server.
-https://developer.ibm.com/wasdev/downloads/liberty-profile-using-eclipse/
-
-After step 6 you may see tons of java build errors in the CustomerOrderServiceTest project due to missing Apache Wink dependency.  Download apache wink jar http://archive.apache.org/dist/wink/1.4.0/ and import it into the right place as shown below:
-
-![purple](static/purple-wink.png "purple")
-
-More java build errors are caused by missing Jackson jars.  Locate and download missing jars e.g. jackson-core-asl-1.9.13.jar and jackson-jaxrs-1.9.13.jar in Maven repo https://mvnrepository.com
-Import Jackson jars into EAR/lib directory:
-
-![purple](static/purple-jackson.png "purple")
-
-After the above, you should be in the exact same state in the Problems view as in the Step 7 of the guide.
-
-Clear the XSLT Validation options (slightly different UI in Eclipse Photon)
-![purple](static/purple-xslt.png "purple")
-
-## Task 4: Re-create DB2 Datastore on IBM Cloud Private
-
-On-premise DB2 backend is simulated by a  DB2 container with preloaded application database.
-The DB2 container should be pre-deployed somewhere and available, DB2 endpoint should be provided. Currently (Nov 2018):
-
-DB2 endpoint:
+1. In the `/root/lab5` folder enter the following command to download the application source code:
+```bash
+git clone https://github.com/ibm-cloud-architecture/refarch-jee-customerorder.git
 ```
-172.16.50.215:30475
-```
-**Note**:  172.16.50.*   is an internal lab environment accessible only via VPN
 
-DB2 credentials:
+2. Checkout the source code:
+```bash
+cd refarch-jee-customerorder
+git checkout was70-dev
 ```
-DB2 userID  db2inst1
-DB2 Password: passw0rd
+
+3. Open eclipse and accept the default workspace
+```bash
+cd /opt/eclipse
+./eclipse
 ```
-**Note**: If no pre-deployed DB2 instance is avaialable and accessible, follow instructions in Appendix 1 below to deploy a copy of preloaded DB2 container on your own ICP instance.
 
+4. Import the existing projects by:
+ * clicking `File > Import`.
+ * In the `General folder`, click `Existing Projects into Workspace`.
+ * Click `Next`.
+ * In the `Select root directory field`, type `/root/lab5/refarch-jee-customerorder` and click `Browse`.
+ * Click `Finish`
 
+  ![import](images/lab5/import.jpg)
+
+  * In the Workspace Migration window, click `Cancel`. In the migration cancel window, click `OK`.
+
+## Task 4: Clean up the development environment
+
+When you create a development environment, you might need to fix installation paths and development tool versions that differ from the original development environment. When you imported the project to Eclipse, any errors were highlighted with red error marks.
+
+![import](images/lab5/eclipse1.jpg)
+
+1. To view the problems in your workspace, click `Window > Show View > Other > General > Problems`. Click `OK`.
+
+  Errors are shown for each of the projects that are related to the build path. In the projects for the new development environment, you need to update the references to the Java and WebSphere libraries.
+
+2. Right-click a project and click Properties. In the properties window, click Java Build Path and then click Libraries.
+
+  Note: You do not need to complete this step for the CustomerOrderServicesApp project.
+
+  ![libraries](images/lab5/libraries.jpg)
+
+3. Fix the paths for the two unbound libraries, which are the JRE System Library and the Server Library. As you can see, both libraries are pointing to the WebSphere Application Server traditional V7.0 libraries from the original development environment. To update those libraries to point to the appropriate path in your environment, follow these steps:
+
+  a. Select the `JRE System library` and click Edit.
+  b. Click `Workspace default JRE` and click Finish.
+
+  ![libraries](images/lab5/jdk.jpg)
+
+  c. Select the `Server library` and click Edit.
+  d. Select `WebSphere Liberty` and click Finish.
+  e. Click `Apply and Close` to close the properties window.
+
+4. Repeat steps 2 - 3 for all the projects.
+
+5. Fix the targeted runtime for the application using these steps:
+
+  a. Right-click on `CustomerOrderServicesApp` and click Properties. b. In the Properties window, click `Targeted Runtimes`
+  c. De-select `WebSphere Application Server traditional V7.0`
+  d. Select `Liberty Runtime`
+  e. Click `Apply and Close`
+
+  ![libraries](images/lab5/targetruntime.jpg)
+
+6. After you update the target runtime and the references to the Server and JRE System libraries, clean and rebuild the entire workspace by clicking `Project > Clean`. Make sure that Clean all projects is selected and click `OK`.
+
+6. Look at the Problems view again:
+
+  ![libraries](images/lab5/problems1.jpg)
+
+7. You resolved several problems, but a few problems still exist. In this case, you want to fix the Xpath is invalid error. To fix that error:
+  a. Right-click the `CustomerOrderServicesWeb` project and click `Properties`.
+  b. In the properties window, click `Validation`
+  c. Scroll to the `XSL Validator` and clear the `Manual` and `Build` options.
+  d. Click `Apply and Close`.
+
+  ![validation](images/lab5/validation.jpg)
+
+8. Clean and rebuild the entire workspace
+
+9. Look at the Problems view again:
+
+  ![libraries](images/lab5/problems1.jpg)
+
+10. Java build errors are caused by missing Jackson jars.  Locate and download missing jars:
+  a. jackson-core-asl-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.9.13)
+  b. jackson-jaxrs-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-jaxrs/1.9.13)
+  c. jackson-mapper-asl-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.9.13)
+  d. Import Jackson jars into EAR/lib directory:
+
+  ![jackson](images/lab5/jackson1.jpg)
+
+11. Java build errors are also in the CustomerOrderServiceTest project due to missing Apache Wink dependency.  
+  a. Download the Apache Wink 1.4 zip file from http://archive.apache.org/dist/wink/1.4.0/
+  b. unzip the zip file
+  c. import wink-1.4.jar from apache-wink-1.4/dist into CustomerOrderServiceTest/WebContent/WEB-INF/lib
+
+  ![wink](images/lab5/wink.jpg)
+
+12. Now the projects have built without problems.
 
 ## Task 5: Configure the Software Analyzer
-no supplementary instructions required
+In this task, you configure the Software Analyzer that is part of the WebSphere Application Server Migration Toolkit.
+
+1. In your Eclipse environment, click Run > Analysis. The Software Analyzer opens.
+
+2. Right-click Software Analyzer and select New. Type a name for the new configuration and click the Rules tab for the configuration.
+
+3. From the Rule Set menu, select WebSphere Application Server Version Migration and click Set. The "Rule set configuration" window opens.
+
+  ![wink](images/lab5/analyzer1.jpg)
+
+4. Configure the settings so that the appropriate rules, based on your migration requirements, are applied when your applications are analyzed.
+
+  ![wink](images/lab5/analyzer2.jpg)
+
+5. When you're finished, click OK.
 
 ## Task 6: Run the Software Analyzer
-no supplementary instructions required
+1. Click Analyze. After you run the Software Analyzer, the Software Analyzer Results tab is shown. The Software Analyzer rules and any errors and warnings are sorted in four categories: Java Code Review, XML File Review, JSP Code Review and File Review. Review each of the categories to determine whether code or configuration changes might be needed.
+
+  ![wink](images/lab5/analysis1.jpg)
+
+2. Click the File Review tab. The tab is empty
+
+3. Click the Java Code Review tab. Warnings are shown for these aspects the WebSphere Application Migration Toolkit:
+
+  ![javacode](images/lab5/javacode.jpg)
+
+  Let's start with the warning about the default initalContext JNDI properties. View the information about the rule that flagged each error or warning by clicking Help > Show Contextual Help.
+
+  To understand more about the problem, click it and read the Help information.
+
+  Tip: If you need more information, click the detailed help link:
+
+  ![help](images/lab5/help.jpg)
+
+  When you understand what the problem is, double-click the file that the Software Analyzer mentions. Inspect the code and determine whether the warning affects your application.
+
+  ![context](images/lab5/context.jpg)
+
+  As you can see from the code, you're not using either of the two default initialContext JNDI properties that this warning mentions. You can ignore this warning and move to the next one.
+
+  Move to the Java Code Review section, which contains information about the use of system-provided third-party APIs.
+
+  ![winkresult](images/lab5/winkresult.jpg)
+
+  Click the detailed help and review the information.
+
+  ![winkhelp](images/lab5/winkhelp.jpg)
+
+  The information doesn't contain enough details to determine what the problem is. Click the link in the last sentence to open an IBM Knowledge Center page for WebSphere.
+
+  From the information in IBM Knowledge Center, you learn that you need to configure the Liberty server to give the application access to third-party libraries. To configure the server, you add the following code to the server.xml configuration file. You will add the code in the next task of this tutorial.
+
+  ```bash
+  <application id="customerOrderServicesApp"
+   name="CustomerOrderServicesApp.ear" type="ear"
+   location="${shared.app.dir}/CustomerOrderServicesApp.ear">
+  <classloader apiTypeVisibility="spec, ibm-api, third-party"/>
+  </application>
+  ```
+
+  The code allows the classloader to access the third-party libraries that are included with Liberty. For the application to work correctly, the classloader must be able to access the Jackson and Apache Wink libraries.
+
+  Examine the last part of the Java Code Review:
+
+  ![jpa](images/lab5/jpa.jpg)
+
+  As you can see in the details, the change in the JPA cascade strategy is not expected to affect most applications. You can mitigate the cascade strategy by reverting to the previous behavior. In the persistence.xml file, set the openjpa.Compatibility property.
+
+  You can configure newer versions of WebSphere Application Server to run on previous versions of most of the JEE technologies. JPA is one of those technologies. In this exercise we will be using the jpa-2.0 feature, so the warning doesn't affect your application.
+
+  Move to the XML File Review section in the Software Analyzer results. A problem exists due to a behavior change on lookups for Enterprise JavaBeans. Review the detailed help.
+
+  Click the file that is related to the error. Notice that you're using the WebSphere Application Server traditional namespaces for the EJB binding:
+
+  ![ejb](images/lab5/ejb.jpg)
+
+  You need to change the EJB binding as follows:
+  `java:app/CustomerOrderServices/ProductSearchServiceImpl!org.pwte.example.service.ProductSearchService`
+
+  ![ejb](images/lab5/ejb2.jpg)
+
+  Save and close the file.
 
 ## Task 7: Configure the WebSphere Liberty Server
+1. Create a new Liberty server in Eclipse.
+  a. Open the `Servers` view
+  b. Right-click and select `New --> Server`
+  c. Select `IBM --> Liberty Server` and click `Next`
+  d. Click `New`
+  e. Name the Server `Lab5` and click `OK`
+  f. Click `Finish`
 
-Download target server.xml directly to your laptop
-[server.xml](solutions/purple-compute/server.xml)
+
+2. Replace the server.xml with this one from GitHub
+[server.xml](https://github.com/ibm-cloud-architecture/icp-dev-workshop/blob/master/lab5/server.xml)
 
 Use locally installed Liberty instance on your laptop, which Eclipse points to:
 
