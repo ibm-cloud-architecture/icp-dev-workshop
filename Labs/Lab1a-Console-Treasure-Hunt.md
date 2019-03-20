@@ -157,6 +157,27 @@ Click **Home** on the navigation bar and select **ICP Performance IBM Provided 2
 
 ![Grafana ICP](images/treasurehunt/grafanaicp.jpg)
 
+**NOTE** If the page doesn't display correctly it may be due to prometheus not starting correctly in your lab environment. Execute the following steps to restart any failed prometheus pods:
+
+* open a terminal session and enter the following command. When prompted log in as *user:* `admin` with *password:* `admin` and select the `default` namespace
+```bash
+cloudctl login -a https://10.10.1.2:8443
+```
+
+* enter the following command to find the failed pod
+```bash
+kubectl get pods -n kube-system | grep monitoring-prometheus
+```
+
+* take the pod name of the failed pod (in `crashloopbackoff` state) and execute the following command
+```bash
+kubectl delete pod -n kube-system <podname>
+```
+
+  e.g.: `kubectl delete pod -n kube-system monitoring-prometheus-fdb49f66b-jp6dw`
+
+* after a few moments, refresh the grafana page
+
 Locate the following information:
 
 1. How many **active pods** are in your ICP cluster?

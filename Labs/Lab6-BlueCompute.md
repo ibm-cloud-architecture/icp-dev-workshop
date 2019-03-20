@@ -46,15 +46,56 @@ The following instructions allow you to build and deploy the backend services re
 
 **Note**: Better than just following these steps, you can learn much more by looking at the Jenkinsfile and helm charts you will be working with. This will help you understand what actually happens in the process.
 
-1. In your browser, go to the Jenkins Web UI at `http://10.10.1.4/jenkins`. Log in as `admin` with a password of `admin_0000`. You should be in the Jenkins dashboard.
+1. Use a terminal session on the **Boot VM** to define a secret to access the IBM Cloud Private user:
 
-2. Click **New item** from the Jenkins menu on the left toolbar. <br>
+	- Encode the user and password that is used to connect to ICP in base64:
 
-3. Enter a name of `CouchDB`, select **Pipeline** and click **OK**.<br>
+		``echo admin | base64``
+
+	- Create a ICP_secret.yaml file in your current directory with the following contents:
+
+    ```
+		apiVersion: v1
+		kind: Secret
+		metadata:
+		  name: icpadmin
+		type: Opaque
+		data:
+		  username: YWRtaW4K
+		  password: YWRtaW4K
+    ```
+
+	- Load the secret to ICP
+
+		``kubectl create -f ICP_secret.yaml -n jenkins``
+
+2. Set up IBM Cloud Private registry parameters as a ConfigMap (namespace, imagePullSecret and registry).
+
+	- Create a ICP_config.yaml file in your current directory with the following contents:
+
+    ```
+		apiVersion: v1
+		kind: ConfigMap
+		metadata:
+		  name: icpconfig
+		data:
+		  namespace: default
+		  registry: mycluster.icp:8500
+    ```
+
+	- Load the ConfigMap to ICP
+
+		``kubectl create -f ICP_config.yaml -n jenkins``
+
+3. In your browser, go to the Jenkins Web UI at `http://10.10.1.4/jenkins`. Log in as `admin` with a password of `admin_0000`. You should be in the Jenkins dashboard.
+
+4. Click **New item** from the Jenkins menu on the left toolbar. <br>
+
+5. Enter a name of `CouchDB`, select **Pipeline** and click **OK**.<br>
 
    ![Create pipeline](images/blue/couchdb1.jpg)
 
-4. Scroll down to the Pipeline section and specify:
+6. Scroll down to the Pipeline section and specify:
 
 	- Definition: `Pipeline script from SCM`
 	- SCM: `Git`
@@ -65,21 +106,21 @@ The following instructions allow you to build and deploy the backend services re
 
 	 ![Pipeline from git](images/blue/couchdb2.jpg)
 
-5. On the couchDB pipeline page, click **Build now**.<br>
+7. On the couchDB pipeline page, click **Build now**.<br>
 
-6. Once the pipeline is running as indicated on the lower left side, open the drop down menu next to the run number and select **Console Output**. <br>
+8. Once the pipeline is running as indicated on the lower left side, open the drop down menu next to the run number and select **Console Output**. <br>
 
    ![Running pipeline](images/blue/couchdb3.jpg)
 
-7. The console should show the helm chart being deployed at the end and the pipeline having finished successfully.<br>
+9. The console should show the helm chart being deployed at the end and the pipeline having finished successfully.<br>
 
    ![Console output](images/blue/couchdb4.jpg)
 
-8. Having the helm chart deployed does not necessarily mean that the application is correctly deployed. You must check whether the actual application pod is running. This may take a couple of minutes depending on the network speed to load the container. Run `kubectl get pod` commands and wait until the pod for couchdb is running. <br>
+10. Having the helm chart deployed does not necessarily mean that the application is correctly deployed. You must check whether the actual application pod is running. This may take a couple of minutes depending on the network speed to load the container. Run `kubectl get pod` commands and wait until the pod for couchdb is running. <br>
 
    ![Running pod](images/blue/couchdb5.jpg)
 
-9. Check the status of the `bluecompute-couchdb` release, by running `helm status bluecompute-couchdb --tls`. <br>
+11. Check the status of the `bluecompute-couchdb` release, by running `helm status bluecompute-couchdb --tls`. <br>
 
    ![CouchDB status](images/blue/couchdb6.jpg)<br>
 
@@ -98,7 +139,7 @@ The following instructions allow you to build and deploy the backend services re
 
    **Note:** The deployment of the other backend components (elasticsearch, inventory-mysql and orders-mysql) is actually very similar. You create the Jenkins pipelines from SCM (GIT) and run them individually. These pipelines are not automated (triggered using code changes) as this is meant to be a stable backend. In a real production environment, you would want to add a PersistentVolumeClaim to physically host the data instead of storing it in volatile containers as this example describes.
 
-10. Deploy `elasticsearch` by creating a new pipeline, with the following parameters:
+12. Deploy `elasticsearch` by creating a new pipeline, with the following parameters:
 
 	- Name: `Elasticsearch`
 	- Repository URL: `https://github.com/davemulley/icp-jenkins-helm-bluecompute`
@@ -108,7 +149,7 @@ The following instructions allow you to build and deploy the backend services re
 	- Run the pipeline using the **Build now** link.
 	- Make sure the `bluecompute-elasticsearch` pod is running.
 
-11. Check the status of the `bluecompute-elasticsearch` release, by running `helm status bluecompute-elasticsearch --tls`. <br>
+13. Check the status of the `bluecompute-elasticsearch` release, by running `helm status bluecompute-elasticsearch --tls`. <br>
 
     ![Elasticsearch status](images/blue/elasticsearch1.jpg)<br>
 
@@ -120,7 +161,7 @@ The following instructions allow you to build and deploy the backend services re
 	   - Deployment: `bluecompute-elasticsearch-catalogdb-elasticsearch`<br>___________________________________________
 	   - Pod: `bluecompute-elasticsearch-catalogdb-elasticsearch`-<br>___________________________________________
 
-10. Deploy `inventory-mysql` by creating a new pipeline, with the following parameters:
+14. Deploy `inventory-mysql` by creating a new pipeline, with the following parameters:
 
 	- Name: `Inventory-mysql`
 	- Repository URL: `https://github.com/davemulley/icp-jenkins-helm-bluecompute `
@@ -130,7 +171,7 @@ The following instructions allow you to build and deploy the backend services re
 	- Run the pipeline using the **Build now** link.
 	- Make sure the `bluecompute-inventory-mysql` pod is running
 
-11. Check the status of the `bluecompute-inventory-mysql` release, by running `helm status bluecompute-inventory-mysql --tls`. <br>
+15. Check the status of the `bluecompute-inventory-mysql` release, by running `helm status bluecompute-inventory-mysql --tls`. <br>
 
     ![inventory-mysql status](images/blue/mysql1.jpg)<br>
 
@@ -147,7 +188,7 @@ The following instructions allow you to build and deploy the backend services re
 	   - Pods: `bluecompute-inventory-mysql-inventory-mysql-* `and `bluecompute-inventory-mysql-ibmcase-inventory-mysql-popu* `
 <br>___________________________________________
 
-10. Deploy `orders-mysql` by creating a new pipeline, with the following parameters:
+16. Deploy `orders-mysql` by creating a new pipeline, with the following parameters:
 
 	- Name: `Orders-mysql`
 	- Repository URL: `https://github.com/davemulley/icp-jenkins-helm-bluecompute `
@@ -157,7 +198,7 @@ The following instructions allow you to build and deploy the backend services re
 	- Run the pipeline using the **Build now** link.
 	- Make sure the `bluecompute-orders-mysql` pod is running
 
-11. Check the status of the `bluecompute-orders-mysql` release, by running `helm status bluecompute-orders-mysql --tls`. <br>
+17. Check the status of the `bluecompute-orders-mysql` release, by running `helm status bluecompute-orders-mysql --tls`. <br>
 
     ![orders-mysql status](images/blue/orders1.jpg)<br>
 
@@ -172,7 +213,7 @@ The following instructions allow you to build and deploy the backend services re
 	  - Pod: `bluecompute-orders-mysql-orders-mysql-* `
 <br>___________________________________________
 
-17. Answer the following questions:
+18. Answer the following questions:
 
 	- How would you get the URL and credentials to access the backend services? <br>___________________________________________
 	<br>___________________________________________
