@@ -22,7 +22,7 @@ The Kubernetes CLI `kubectl` has been installed for you. Use the following comma
 
   ![Copy Commands](images/kubectl/copycommands.jpg)
 
-4. Open a **terminal window** on the **Master VM** and paste in the commands. The output is similar to that shown below:
+4. Open a **terminal window** on the **BOOT VM** and paste in the commands. The output is similar to that shown below:
 
   ```
   # kubectl config set-cluster cluster.local --server=https://9.37.138.189:8001 --insecure-skip-tls-verify=true
