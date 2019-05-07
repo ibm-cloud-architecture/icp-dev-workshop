@@ -295,7 +295,7 @@ You would never need to build the pipeline manually.
 8. Create a new Jenkins pipeline using the following specifications for the `catalog` application. Note that the repository below is correct. The `catalog` application is in the `inventory` repository.
 
 	- Name: `Catalog`
-	- Repository URL: `https://github.com/ibm-cloud-academy/refarch-cloudnative-micro-inventory `
+	- Repository URL: `https://github.com/davemulley/refarch-cloudnative-micro-inventory`
 	- Branch Specifier: `*/master`
 	- Script Path: `catalog/Jenkinsfile`
 
