@@ -193,21 +193,29 @@ When you create a development environment, you might need to fix installation pa
 3. Fix the paths for the two unbound libraries, which are the JRE System Library and the Server Library. As you can see, both libraries are pointing to the WebSphere Application Server traditional V7.0 libraries from the original development environment. To update those libraries to point to the appropriate path in your environment, follow these steps:
 
   a. Select the `JRE System library` and click Edit.
+
   b. Click `Workspace default JRE` and click Finish.
 
   ![libraries](images/lab5/jdk.jpg)
 
   c. Select the `Server library` and click Edit.
+
   d. Select `WebSphere Liberty` and click Finish.
+
   e. Click `Apply and Close` to close the properties window.
 
 4. Repeat steps 2 - 3 for all the projects.
 
 5. Fix the targeted runtime for the application using these steps:
 
-  a. Right-click on `CustomerOrderServicesApp` and click Properties. b. In the Properties window, click `Targeted Runtimes`
+  a. Right-click on `CustomerOrderServicesApp` and click Properties.
+
+  b. In the Properties window, click `Targeted Runtimes`
+
   c. De-select `WebSphere Application Server traditional V7.0`
+
   d. Select `Liberty Runtime`
+
   e. Click `Apply and Close`
 
   ![libraries](images/lab5/targetruntime.jpg)
@@ -219,9 +227,13 @@ When you create a development environment, you might need to fix installation pa
   ![libraries](images/lab5/problems1.jpg)
 
 7. You resolved several problems, but a few problems still exist. In this case, you want to fix the Xpath is invalid error. To fix that error:
+
   a. Right-click the `CustomerOrderServicesWeb` project and click `Properties`.
+
   b. In the properties window, click `Validation`
+
   c. Scroll to the `XSL Validator` and clear the `Manual` and `Build` options.
+
   d. Click `Apply and Close`.
 
   ![validation](images/lab5/validation.jpg)
@@ -233,16 +245,23 @@ When you create a development environment, you might need to fix installation pa
   ![libraries](images/lab5/problems1.jpg)
 
 10. Java build errors are caused by missing Jackson jars.  Locate and download missing jars:
+
   a. jackson-core-asl-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.9.13)
+
   b. jackson-jaxrs-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-jaxrs/1.9.13)
+
   c. jackson-mapper-asl-1.9.13.jar (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.9.13)
+
   d. Import Jackson jars into EAR/lib directory:
 
   ![jackson](images/lab5/jackson1.jpg)
 
 11. Java build errors are also in the CustomerOrderServiceTest project due to missing Apache Wink dependency.  
+
   a. Download the Apache Wink 1.4 zip file from http://archive.apache.org/dist/wink/1.4.0/
+
   b. unzip the zip file
+
   c. import wink-1.4.jar from apache-wink-1.4/dist into CustomerOrderServiceTest/WebContent/WEB-INF/lib
 
   ![wink](images/lab5/wink.jpg)
@@ -356,20 +375,31 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 
 ## Task 7: Configure the WebSphere Liberty Server
 1. Create a new Liberty server in Eclipse.
+
   a. Open the `Servers` view
+
   b. Right-click and select `New --> Server`
+
   c. Select `IBM --> Liberty Server` and click `Next`
+
   d. Click `New`
+
   e. Name the Server `Lab5` and click `OK`
+
   f. Click `Finish`
 
 
 2. Replace the server.xml with this one from GitHub
 [server.xml](https://github.com/ibm-cloud-architecture/icp-dev-workshop/blob/master/lab5/server.xml)
+
   a. In the `Servers` view. open the `Lab5` server
+
   b. Double-click on 'Server Configuration'
+
   c. Switch to the 'Source' view
+
   d. Replace the contents with that from GitHub
+
   e. Review the featureList, classLoader, basicRegistry and db2 configuration
 
 3. Modify the `OrderDS` datasource to have the correct `serverName` and `portNumber` for your DB2 instance that is running in ICP.
@@ -383,12 +413,19 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 1. Copy the db2 jars from https://github.com/ibm-cloud-architecture/icp-dev-workshop/tree/master/lab5/libs to `/opt/liberty/wlp/usr/shared/resources/lib` (or you can copy them from the lab4 files in`/root/lab4/liberty/binary/lib`)
 
 2. Export the EAR file from eclipse
+
   a. Right-click the CustomerOrderServicesApp project and select Export > EAR file.
+
   b. In the window that opens, set up the project to be exported as an EAR file
+
   c. For the name of the EAR project, type CustomerOrderServicesApp.
+
   d. For the destination, type `/opt/liberty/wlp/usr/shared/apps/CustomerOrderServicesApp.ear`.
+
   e. Select the Optimize for a specific server runtime check box and select WebSphere Application Server Liberty from the list.
+
   f. Select the Overwrite existing file check box in case another application already uses the file name that you specified.
+
   g. Click Finish.
 
   The project is exported as an EAR file into the shared applications folder for WebSphere Liberty and to the application itself.
@@ -401,6 +438,7 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 
 5. Install the required features.
   a. Stop the Lab5 server
+
   b. At the command line issue the following command:
 
   ```bash
@@ -444,13 +482,21 @@ In this task, you configure the Software Analyzer that is part of the WebSphere 
 Follow the same steps used in Lab4 to deploy this Customer Order application ICP.
 
 1. Create a `/root/lab5/liberty` folder
+
 2. Copy `server.xml` from your current Liberty server to `/root/lab5/liberty`
+
 3. Copy the db2 jars to `/root/lab5/liberty/binary/lib`
+
 4. Copy the ear to `/root/lab5/liberty/binary/application`
+
 5. Copy the Dockerfile from `/root/lab4/liberty` to `/root/lab5/liberty`
+
 6. Modify the server.xml file `file name` entries for the db2 drivers to use `/config/lib` as the location (refer to the server.xml from Lab4)
+
 7. Modify the server.xml file `application location` entrie for the CustomerOrderServicesApp.ear to remove the folder from the location (refer to the server.xml from Lab4)
+
 8. Build and push a Docker Image with the tag `mycluster.icp:8500/default/customerorderservices` to ICP
+
 9. Create a new yaml file using the text below:
 
 ```bash
@@ -487,7 +533,9 @@ spec:
 ```
 
 10. Create the service and deployment using kubectl
+
 11. Locate the port that the service is running on
+
 12. Navigate to `http://10.10.1.4:<port>/CustomerOrderServicesWeb`
 
   ![running](images/lab5/running.jpg)
