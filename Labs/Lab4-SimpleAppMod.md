@@ -199,7 +199,7 @@ Transformation Advisor creates many accelerators to speed up the process of migr
 
   * change the `jpa-2.1` feature to `jpa-2.0`
 
-  * change the DB2 driver location file names to be `/config/lib/db2jcc.jar` and `/config/lib/db2jcc_licence_cu.jar`
+  * change the DB2 driver location file names to be `/config/lib/db2jcc.jar` and `/config/lib/db2jcc_licence_cu.jar` for the `DB2 UNIVERSAL JDBC DRIVER PROVIDER` and the `DB2 UNIVERSAL JDBC DRIVER PROVIDER (XA)` jdbcDrivers. (THERE ARE TWO SETS OF FILE NAMES THAT MUST BE CHANGED)
 
   * add `user="db2inst1" password="db2Pa2359w0rd123" transactional="false"` to the `properties.db2.jcc` line of the `PlantsByWebSphereDataSourceNONJTA` datasource
 
