@@ -20,6 +20,7 @@
      	</group>
    </basicRegistry>
 
+    <keyStore password="passw0rd"></keyStore>
 
     <authData id="DefaultNode01/CustOrderAuthAlias" password="passw0rd" user="db2inst1"/>
 
