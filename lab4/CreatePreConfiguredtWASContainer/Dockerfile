@@ -1,8 +1,8 @@
-FROM ibmcom/websphere-traditional:profile
+FROM ibmcom/websphere-traditional:latest
 
 USER root
 
-RUN mkdir /demo && chown was:was /demo
+RUN mkdir /demo && chown was /demo
 
 USER was
 RUN mkdir /demo/db2drivers
